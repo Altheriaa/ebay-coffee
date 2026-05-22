@@ -178,12 +178,55 @@
 
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import Swal from 'sweetalert2';
 
 const page = usePage()
 
 const mobileOpen = ref(false);
 const dropdownOpen = ref(false);
+
+// SweetAlert2 Toast instance
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
+
+// Watch for flash session messages from Laravel
+watch(
+  () => page.props.flash,
+  (flash) => {
+    if (flash && flash.success) {
+      Toast.fire({ icon: 'success', title: flash.success });
+    } else if (flash && flash.error) {
+      Toast.fire({ icon: 'error', title: flash.error });
+    } else if (flash && flash.warning) {
+      Toast.fire({ icon: 'warning', title: flash.warning });
+    } else if (flash && flash.message) {
+      Toast.fire({ icon: 'info', title: flash.message });
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+// Watch for validation errors
+watch(
+  () => page.props.errors,
+  (errors) => {
+    if (errors && Object.keys(errors).length > 0) {
+      const firstErrorKey = Object.keys(errors)[0];
+      Toast.fire({ icon: 'error', title: errors[firstErrorKey] });
+    }
+  },
+  { deep: true }
+);
 
 // Close dropdown on click outside
 const closeDropdown = (e) => {

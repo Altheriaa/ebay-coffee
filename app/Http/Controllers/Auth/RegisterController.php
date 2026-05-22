@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class RegisterController extends Controller
@@ -38,6 +39,8 @@ class RegisterController extends Controller
             'alamat' => $request->alamat,
         ]);
 
-        return redirect('/login')->with('success', 'Registrasi berhasil.');
+        Auth::login($user);
+
+        return redirect('/')->with('success', 'Registrasi berhasil.');
     }
 }

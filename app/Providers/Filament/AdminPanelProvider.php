@@ -25,8 +25,8 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('ebay-coffee-admin')
-            ->path('ebaycoffee-admin')
+            ->id('bay-coffee-admin')
+            ->path('baycoffee-admin')
             ->login()
             ->colors([
                 'primary' => Color::Amber,

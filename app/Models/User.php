@@ -45,7 +45,7 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'pelanggan';
     }
 
-    public function customers() {
+    public function customer() {
         return $this->hasOne(Customer::class);
     }
 }

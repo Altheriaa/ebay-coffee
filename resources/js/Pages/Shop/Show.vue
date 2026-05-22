@@ -104,10 +104,6 @@
                 <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">shopping_cart</span>
                 Add to Cart
               </button>
-              <button class="inline-flex items-center justify-center gap-2 bg-surface-container-lowest border border-outline-variant/30 hover:border-secondary text-on-surface-variant hover:text-secondary font-semibold px-5 py-3.5 rounded-xl transition-all duration-200 text-sm sm:text-base">
-                <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 0">favorite</span>
-                Wishlist
-              </button>
             </div>
 
             <!-- Perks -->
@@ -131,7 +127,7 @@
     </section>
 
     <!-- ===== RELATED PRODUCTS ===== -->
-    <section class="py-10 sm:py-14 bg-surface-container-low">
+    <!-- <section class="py-10 sm:py-14 bg-surface-container-low">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-xl sm:text-2xl font-bold text-primary mb-6 sm:mb-8">You May Also Like</h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
@@ -151,8 +147,7 @@
           </Link>
         </div>
       </div>
-    </section>
-
+    </section> -->
   </AppLayout>
 </template>
 
@@ -165,7 +160,7 @@ const qty = ref(1);
 
 // Dummy data — will be replaced with props from backend
 const product = {
-  name: 'Ethiopian Yirgacheffe',
+  name: 'cek-cart',
   icon: 'coffee',
   badge: 'Best Seller',
   rating: '4.9',

@@ -35,7 +35,7 @@
 
       <!-- Mobile logo -->
       <div class="flex lg:hidden justify-center gap-2.5 mb-12">
-        <span class="font-bold text-2xl text-primary tracking-tight" style="font-family:'Playfair Display',serif;">Bay &amp; Coffee</span>
+        <Link href="/" class="font-bold text-2xl text-primary tracking-tight" style="font-family:'Playfair Display',serif;">Bay &amp; Coffee</Link>
       </div>
 
       <div class="w-full max-w-md mx-auto">

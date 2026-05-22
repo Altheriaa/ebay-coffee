@@ -33,10 +33,10 @@
 
           <!-- CTA Buttons -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <button class="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-on-secondary font-semibold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl transition-all duration-200 shadow-lg shadow-primary/40 hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base w-full sm:w-auto">
+            <Link href="/shop" class="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-on-secondary font-semibold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl transition-all duration-200 shadow-lg shadow-primary/40 hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base w-full sm:w-auto">
               <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">shopping_bag</span>
               Shop Now
-            </button>
+            </Link>
             <button class="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-on-primary font-semibold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl border border-white/30 transition-all duration-200 text-sm sm:text-base w-full sm:w-auto">
               <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 0">play_circle</span>
               Our Story
