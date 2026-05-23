@@ -1,6 +1,39 @@
+<script setup>
+import { Link } from '@inertiajs/vue3';
+import { reactive, computed } from 'vue';
+import AppLayout from '../Layouts/App.vue';
+
+// Dummy cart data — will be replaced with real state management later
+const cartItems = reactive([
+  { name: 'Ethiopian Yirgacheffe', weight: '12oz · Light Roast',  price: 'Rp 180.000', icon: 'coffee',       qty: 2 },
+  { name: 'Guatemala Antigua',     weight: '12oz · Medium Roast', price: 'Rp 165.000', icon: 'local_cafe',   qty: 1 },
+  { name: 'House Blend – Medium',  weight: '16oz · Medium Roast', price: 'Rp 210.000', icon: 'coffee_maker', qty: 1 },
+]);
+
+const formatRupiah = (value) => {
+  return 'Rp ' + value.toLocaleString('id-ID');
+};
+
+const subtotal = computed(() => {
+  return cartItems.reduce((sum, item) => {
+    return sum + (parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0) * item.qty;
+  }, 0);
+});
+
+const total = computed(() => {
+  const shipping = subtotal.value >= 400000 ? 0 : 50000;
+  return subtotal.value + shipping;
+});
+
+const trustBadges = [
+  { icon: 'verified_user', label: 'Secure' },
+  { icon: 'credit_card',   label: 'Encrypted' },
+  { icon: 'undo',          label: '30-day Return' },
+];
+</script>
+
 <template>
   <AppLayout>
-
     <!-- ===== PAGE HEADER ===== -->
     <section class="bg-primary py-10 sm:py-14">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -174,36 +207,4 @@
   </AppLayout>
 </template>
 
-<script setup>
-import { Link } from '@inertiajs/vue3';
-import { reactive, computed } from 'vue';
-import AppLayout from '../Layouts/App.vue';
 
-// Dummy cart data — will be replaced with real state management later
-const cartItems = reactive([
-  { name: 'Ethiopian Yirgacheffe', weight: '12oz · Light Roast',  price: 'Rp 180.000', icon: 'coffee',       qty: 2 },
-  { name: 'Guatemala Antigua',     weight: '12oz · Medium Roast', price: 'Rp 165.000', icon: 'local_cafe',   qty: 1 },
-  { name: 'House Blend – Medium',  weight: '16oz · Medium Roast', price: 'Rp 210.000', icon: 'coffee_maker', qty: 1 },
-]);
-
-const formatRupiah = (value) => {
-  return 'Rp ' + value.toLocaleString('id-ID');
-};
-
-const subtotal = computed(() => {
-  return cartItems.reduce((sum, item) => {
-    return sum + (parseInt(item.price.replace(/[^\d]/g, ''), 10) || 0) * item.qty;
-  }, 0);
-});
-
-const total = computed(() => {
-  const shipping = subtotal.value >= 400000 ? 0 : 50000;
-  return subtotal.value + shipping;
-});
-
-const trustBadges = [
-  { icon: 'verified_user', label: 'Secure' },
-  { icon: 'credit_card',   label: 'Encrypted' },
-  { icon: 'undo',          label: '30-day Return' },
-];
-</script>

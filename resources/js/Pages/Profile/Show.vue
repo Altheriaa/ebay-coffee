@@ -104,7 +104,6 @@ const userInitials = computed(() => {
 
           <!-- DETAIL CONTENT PANEL -->
           <div class="flex-grow bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-5 sm:p-8 shadow-sm">
-            
             <!-- PANEL: INFORMASI PROFIL -->
             <div v-show="activeMenu === 'profile'">
               <h2 class="text-lg sm:text-xl font-bold text-primary mb-1">Detail Informasi Diri</h2>

@@ -15,4 +15,8 @@ class Customer extends Model
     public function transaksi() {
         return $this->hasMany(Transaksi::class);
     }
+
+    public function cartItems() {
+        return $this->hasMany(CartItem::class);
+    }
 }

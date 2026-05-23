@@ -107,6 +107,11 @@ const related = [
                 <div class="text-sm font-semibold text-primary">Stok : {{ product.stok }}</div>
               </div>
             </div>
+            <div class="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-outline-variant/20">
+              <div>
+                <div class="text-sm font-semibold text-primary">{{ product.weight }} {{ product.satuan }}</div>
+              </div>
+            </div>
 
             <!-- Quantity -->
             <div class="mb-6">
@@ -131,22 +136,6 @@ const related = [
                 Add to Cart
               </button>
             </div>
-
-            <!-- Perks -->
-            <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4 sm:p-5">
-              <div class="flex flex-col gap-3">
-                <div v-for="perk in perks" :key="perk.label" class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings:'FILL' 1">{{ perk.icon }}</span>
-                  </div>
-                  <div>
-                    <div class="text-xs sm:text-sm font-semibold text-primary">{{ perk.label }}</div>
-                    <div class="text-[11px] text-on-surface-variant">{{ perk.sub }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>

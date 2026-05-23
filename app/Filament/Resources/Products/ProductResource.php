@@ -65,6 +65,11 @@ class ProductResource extends Resource
                         'Gram' => 'Gram',
                     ])
                     ->required(),
+                TextInput::make('weight')
+                    ->label('Banyaknya (Gram/Pcs/Kg)')
+                    ->required()
+                    ->numeric()
+                    ->default(0),
                 TextInput::make('stok')
                     ->required()
                     ->numeric()
@@ -106,6 +111,9 @@ class ProductResource extends Resource
                     ->sortable(),
                 TextColumn::make('satuan')
                     ->label('Satuan')
+                    ->sortable(),
+                TextColumn::make('weight')
+                    ->label('Banyaknya')
                     ->sortable(),
                 ImageColumn::make('foto_product')
                     ->height('200px')
