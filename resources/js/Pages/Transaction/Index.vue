@@ -1,3 +1,257 @@
+<script setup>
+import { Link, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import AppLayout from '../Layouts/App.vue';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+const toastMixin = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  background: '#271310',
+  color: '#fff8f6',
+  iconColor: '#f0bd8b',
+  customClass: {
+    popup: 'rounded-2xl border border-[#7d562d]/30 shadow-lg font-sans',
+  },
+  didOpen: (toastEl) => {
+    toastEl.onmouseenter = Swal.stopTimer;
+    toastEl.onmouseleave = Swal.resumeTimer;
+  }
+});
+
+const toast = {
+  fire(title, text, icon) {
+    if (typeof title === 'object') {
+      if (title.showCancelButton || title.input) {
+        return Swal.fire({
+          ...title,
+          background: '#fff8f6',
+          color: '#271310',
+          confirmButtonColor: '#7d562d',
+          cancelButtonColor: '#827472',
+          customClass: {
+            popup: 'rounded-3xl border border-[#eed5cf] shadow-xl font-sans',
+            title: 'font-headline-sm text-primary',
+            confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
+            cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+          }
+        });
+      }
+      return toastMixin.fire(title);
+    }
+    return toastMixin.fire({
+      icon: icon || 'info',
+      title: title,
+      html: text
+    });
+  },
+  error(message) {
+    return toastMixin.fire({
+      icon: 'error',
+      title: message
+    });
+  },
+  success(message) {
+    return toastMixin.fire({
+      icon: 'success',
+      title: message
+    });
+  }
+};
+
+const props = defineProps({
+  orders: Array,
+  midtransClientKey: String,
+});
+
+const activeTab = ref('all');
+const searchQuery = ref('');
+
+const tabs = [
+  { label: 'Semua Transaksi', value: 'all' },
+  { label: 'Belum Bayar',     value: 'pending' },
+  { label: 'Selesai',         value: 'selesai' },
+  { label: 'Kedaluwarsa',     value: 'expired' },
+];
+
+onMounted(() => {
+    const script = document.createElement('script');
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute('data-client-key', props.midtransClientKey);
+    document.head.appendChild(script);
+});
+
+// Map orders to UI transaction structure
+const transactions = computed(() => {
+  return (props.orders || []).map(order => {
+    // Determine UI status
+    let uiStatus = 'pending';
+    let uiStatusLabel = 'Menunggu Pembayaran';
+    
+    if (order.status_payment === 'paid') {
+      uiStatus = 'selesai';
+      if (order.status === 'completed') {
+        uiStatusLabel = 'Pesanan Selesai';
+      } else if (order.status === 'shipped') {
+        uiStatusLabel = 'Pesanan Dikirim';
+      } else if (order.status === 'processing') {
+        uiStatusLabel = 'Pesanan Diproses';
+      } else {
+        uiStatusLabel = 'Pembayaran Berhasil';
+      }
+    } else if (order.status_payment === 'expired' || order.status_payment === 'failed' || order.status === 'cancelled') {
+      uiStatus = 'expired';
+      if (order.status === 'cancelled') {
+        uiStatusLabel = 'Pesanan Dibatalkan';
+      } else if (order.status_payment === 'failed') {
+        uiStatusLabel = 'Pembayaran Gagal';
+      } else {
+        uiStatusLabel = 'Pembayaran Kedaluwarsa';
+      }
+    } else {
+      uiStatus = 'pending';
+      uiStatusLabel = 'Menunggu Pembayaran';
+    }
+
+    // Format date: e.g., '22 Mei 2026 · 10:30 WIB'
+    const dateObj = new Date(order.created_at);
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const formattedDate = dateObj.toLocaleDateString('id-ID', options);
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const uiDate = `${formattedDate} · ${hours}:${minutes} WIB`;
+
+    // Map items
+    const uiItems = (order.order_items || []).map(item => {
+      const prod = item.product || {};
+      return {
+        name: prod.nama_product || 'Produk Tidak Tersedia',
+        weight: `${prod.weight || 0} ${prod.satuan || 'gr'}`,
+        price: item.price,
+        qty: item.qty,
+        icon: 'local_cafe',
+        foto_product: prod.foto_product
+      };
+    });
+
+    return {
+      id: order.id,
+      invoice: order.invoice_number,
+      date: uiDate,
+      status: uiStatus,
+      statusLabel: uiStatusLabel,
+      paymentMethod: order.payment_method || 'Midtrans',
+      total: order.total_price,
+      snap_token: order.snap_token,
+      items: uiItems
+    };
+  });
+});
+
+const filteredTransactions = computed(() => {
+  return transactions.value.filter(tx => {
+    // Status Filter
+    if (activeTab.value !== 'all' && tx.status !== activeTab.value) {
+      return false;
+    }
+    // Search Query Filter
+    if (searchQuery.value) {
+      const q = searchQuery.value.toLowerCase();
+      const invoiceMatch = tx.invoice.toLowerCase().includes(q);
+      const itemsMatch = tx.items.some(item => item.name.toLowerCase().includes(q));
+      return invoiceMatch || itemsMatch;
+    }
+    return true;
+  });
+});
+
+function getCountForTab(tabValue) {
+  if (tabValue === 'all') return transactions.value.length;
+  return transactions.value.filter(tx => tx.status === tabValue).length;
+}
+
+function getStatusClass(status) {
+  switch (status) {
+    case 'pending': return 'bg-yellow-500/15 text-yellow-600';
+    case 'selesai': return 'bg-secondary/15 text-secondary';
+    case 'expired': return 'bg-outline-variant/20 text-on-surface-variant/70';
+    default:        return 'bg-outline-variant/30 text-outline';
+  }
+}
+
+const formatRupiah = (value) => {
+  return 'Rp ' + value.toLocaleString('id-ID');
+};
+
+function openPayment(tx) {
+  if (window.snap && tx.snap_token) {
+    window.snap.pay(tx.snap_token, {
+      onSuccess: async (result) => {
+        try {
+          await axios.post('/payment/success', result);
+        } catch (e) { console.error('Sync error:', e); }
+        toast.fire('Berhasil', 'Pembayaran Anda telah diterima', 'success')
+          .then(() => router.reload());
+      },
+      onPending: async (result) => {
+        try {
+          await axios.post('/payment/success', result);
+        } catch (e) { console.error('Sync error:', e); }
+        toast.fire('Menunggu Pembayaran', 'Silakan selesaikan pembayaran sesuai instruksi', 'info')
+          .then(() => router.reload());
+      },
+      onError: (result) => {
+        toast.fire('Gagal', 'Pembayaran Anda gagal', 'error');
+      },
+      onClose: () => {
+        router.reload();
+      }
+    });
+  } else {
+    toast.fire('Gagal', 'Token pembayaran tidak ditemukan atau Snap belum dimuat.', 'error');
+  }
+}
+
+async function cancelTransaction(tx) {
+  const confirm = await toast.fire({
+    title: 'Batalkan Transaksi',
+    text: `Apakah Anda yakin ingin membatalkan transaksi ${tx.invoice}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Batalkan',
+    cancelButtonText: 'Tidak',
+    confirmButtonColor: '#d33'
+  });
+
+  if (confirm.isConfirmed) {
+    router.post(`/transaksi/${tx.id}/cancel`, {}, {
+      onSuccess: () => {
+        toast.fire('Berhasil', 'Transaksi telah dibatalkan.', 'success');
+      },
+      onError: () => {
+        toast.fire('Gagal', 'Gagal membatalkan transaksi.', 'error');
+      }
+    });
+  }
+}
+
+function buyAgain(tx) {
+  router.post(`/transaksi/${tx.id}/reorder`, {}, {
+    onSuccess: () => {
+      toast.fire('Berhasil', 'Produk berhasil ditambahkan kembali ke keranjang.', 'success');
+    }
+  });
+}
+
+function downloadInvoice(tx) {
+  window.open(`/transaksi/${tx.id}/invoice`, '_blank');
+}
+</script>
+
 <template>
   <AppLayout>
     <section class="bg-primary py-10 sm:py-14">
@@ -85,7 +339,8 @@
             <div class="p-4 sm:p-6 divide-y divide-outline-variant/10">
               <div v-for="item in tx.items" :key="item.name" class="py-4 first:pt-0 last:pb-0 flex items-center gap-4">
                 <div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-low flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-surface-container to-surface-container-high border border-outline-variant/10">
-                  <span class="material-symbols-outlined text-outline/50" style="font-size:28px; font-variation-settings:'FILL' 1">{{ item.icon }}</span>
+                  <img v-if="item.foto_product" loading="lazy" :src="`/storage/${item.foto_product}`" :alt="item.name" class="w-full h-full object-cover">
+                  <span v-else class="material-symbols-outlined text-outline/50" style="font-size:28px; font-variation-settings:'FILL' 1">{{ item.icon }}</span>
                 </div>
                 <div class="flex-grow min-w-0">
                   <h4 class="font-bold text-xs sm:text-sm text-primary leading-tight truncate">{{ item.name }}</h4>
@@ -129,6 +384,11 @@
                     <span class="material-symbols-outlined text-sm">download</span>
                     Unduh Invoice
                   </button>
+                   <Link href="/shipping"
+                    class="flex-grow sm:flex-grow-0 inline-flex items-center justify-center gap-1.5 bg-surface border border-outline-variant/40 hover:border-secondary text-on-surface-variant hover:text-secondary font-semibold px-4 py-2.5 rounded-xl transition-all duration-200 text-xs cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">local_shipping</span>
+                    Status Pengiriman
+                  </Link>
                 </template>
                 <template v-else-if="tx.status === 'expired'">
                   <button @click="buyAgain(tx)"
@@ -148,127 +408,4 @@
   </AppLayout>
 </template>
 
-<script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-import AppLayout from '../Layouts/App.vue';
 
-const activeTab = ref('all');
-const searchQuery = ref('');
-
-const tabs = [
-  { label: 'Semua Transaksi', value: 'all' },
-  { label: 'Belum Bayar',     value: 'pending' },
-  { label: 'Selesai',         value: 'selesai' },
-  { label: 'Kedaluwarsa',     value: 'expired' },
-];
-
-// Mock Transactions data for beautiful dynamic presentation
-const transactions = ref([
-  {
-    id: 1,
-    invoice: 'INV/20260522/BC/1089',
-    date: '22 Mei 2026 · 10:30 WIB',
-    status: 'pending',
-    statusLabel: 'Menunggu Pembayaran',
-    paymentMethod: 'Midtrans QRIS',
-    total: 390000,
-    items: [
-      { name: 'Ethiopian Yirgacheffe', weight: '12oz · Light Roast', price: 180000, qty: 1, icon: 'coffee' },
-      { name: 'House Blend – Medium',  weight: '16oz · Medium Roast', price: 210000, qty: 1, icon: 'coffee_maker' },
-    ]
-  },
-  {
-    id: 2,
-    invoice: 'INV/20260518/BC/0981',
-    date: '18 Mei 2026 · 14:15 WIB',
-    status: 'selesai',
-    statusLabel: 'Pesanan Selesai',
-    paymentMethod: 'Bank Mandiri Transfer',
-    total: 165000,
-    items: [
-      { name: 'Guatemala Antigua', weight: '12oz · Medium Roast', price: 165000, qty: 1, icon: 'local_cafe' }
-    ]
-  },
-  {
-    id: 3,
-    invoice: 'INV/20260505/BC/0762',
-    date: '05 Mei 2026 · 09:00 WIB',
-    status: 'selesai',
-    statusLabel: 'Pesanan Selesai',
-    paymentMethod: 'GoPay',
-    total: 575000,
-    items: [
-      { name: 'French Roast Dark',  weight: '16oz · Dark Roast',   price: 210000, qty: 2, icon: 'inventory_2' },
-      { name: 'Guatemala Antigua',  weight: '12oz · Medium Roast', price: 165000, qty: 1, icon: 'local_cafe' }
-    ]
-  },
-  {
-    id: 4,
-    invoice: 'INV/20260420/BC/0410',
-    date: '20 April 2026 · 16:45 WIB',
-    status: 'expired',
-    statusLabel: 'Pembayaran Kedaluwarsa',
-    paymentMethod: 'ShopeePay',
-    total: 195000,
-    items: [
-      { name: 'Sumatra Mandheling', weight: '12oz · Dark Roast', price: 195000, qty: 1, icon: 'coffee' }
-    ]
-  }
-]);
-
-const filteredTransactions = computed(() => {
-  return transactions.value.filter(tx => {
-    // Status Filter
-    if (activeTab.value !== 'all' && tx.status !== activeTab.value) {
-      return false;
-    }
-    // Search Query Filter
-    if (searchQuery.value) {
-      const q = searchQuery.value.toLowerCase();
-      const invoiceMatch = tx.invoice.toLowerCase().includes(q);
-      const itemsMatch = tx.items.some(item => item.name.toLowerCase().includes(q));
-      return invoiceMatch || itemsMatch;
-    }
-    return true;
-  });
-});
-
-function getCountForTab(tabValue) {
-  if (tabValue === 'all') return transactions.value.length;
-  return transactions.value.filter(tx => tx.status === tabValue).length;
-}
-
-function getStatusClass(status) {
-  switch (status) {
-    case 'pending': return 'bg-yellow-500/15 text-yellow-600';
-    case 'selesai': return 'bg-secondary/15 text-secondary';
-    case 'expired': return 'bg-outline-variant/20 text-on-surface-variant/70';
-    default:        return 'bg-outline-variant/30 text-outline';
-  }
-}
-
-const formatRupiah = (value) => {
-  return 'Rp ' + value.toLocaleString('id-ID');
-};
-
-// Simple actions feedback (functional placeholders)
-function openPayment(tx) {
-  alert(`Buka gerbang pembayaran untuk invoice ${tx.invoice}`);
-}
-
-function cancelTransaction(tx) {
-  if (confirm(`Apakah Anda yakin ingin membatalkan transaksi ${tx.invoice}?`)) {
-    tx.status = 'expired';
-    tx.statusLabel = 'Pembayaran Dibatalkan';
-  }
-}
-
-function buyAgain(tx) {
-  alert(`Menambahkan ${tx.items.length} item dari invoice ${tx.invoice} ke keranjang belanja Anda.`);
-}
-
-function downloadInvoice(tx) {
-  alert(`Unduh invoice PDF untuk transaksi ${tx.invoice}`);
-}
-</script>

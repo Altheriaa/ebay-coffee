@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'midtransClientKey' => config('midtrans.client_key'),
             'auth' => [
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,

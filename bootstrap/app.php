@@ -17,8 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
         ]);
-        $middleware->alias([
-            'role' => RoleMiddleware::class,
+        $middleware->validateCsrfTokens(except: [
+            '/payment/notification',
+            '/payment/success',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

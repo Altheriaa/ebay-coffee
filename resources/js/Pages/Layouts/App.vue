@@ -23,6 +23,9 @@
           <Link href="/cart" class="hover:text-secondary transition-colors duration-200 flex items-center justify-center w-10 h-10 rounded-full hover:bg-on-surface-variant/5">
             <span class="material-symbols-outlined">shopping_bag</span>
           </Link>
+          <Link href="/shipping" class="hover:text-secondary transition-colors duration-200 flex items-center justify-center w-10 h-10 rounded-full hover:bg-on-surface-variant/5">
+            <span class="material-symbols-outlined">local_shipping</span>
+          </Link>
 
           <!-- Masuk (Login) Button or User Profile Dropdown -->
           <Link v-if="!page.props.auth.user" href="/login" class="hidden md:flex items-center justify-center px-4 py-2 text-sm font-bold text-on-secondary bg-secondary hover:bg-secondary/90 rounded-full transition-colors duration-200">
@@ -193,6 +196,12 @@ const Toast = Swal.mixin({
   showConfirmButton: false,
   timer: 3000,
   timerProgressBar: true,
+  background: '#271310',
+  color: '#fff8f6',
+  iconColor: '#f0bd8b',
+  customClass: {
+    popup: 'rounded-2xl border border-[#7d562d]/30 shadow-lg font-sans',
+  },
   didOpen: (toast) => {
     toast.onmouseenter = Swal.stopTimer;
     toast.onmouseleave = Swal.resumeTimer;

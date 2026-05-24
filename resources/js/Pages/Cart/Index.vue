@@ -1,10 +1,73 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import AppLayout from '../Layouts/App.vue';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+const toastMixin = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  background: '#271310',
+  color: '#fff8f6',
+  iconColor: '#f0bd8b',
+  customClass: {
+    popup: 'rounded-2xl border border-[#7d562d]/30 shadow-lg font-sans',
+  },
+  didOpen: (toastEl) => {
+    toastEl.onmouseenter = Swal.stopTimer;
+    toastEl.onmouseleave = Swal.resumeTimer;
+  }
+});
+
+const toast = {
+  fire(title, text, icon) {
+    if (typeof title === 'object') {
+      if (title.showCancelButton || title.input) {
+        return Swal.fire({
+          ...title,
+          background: '#fff8f6',
+          color: '#271310',
+          confirmButtonColor: '#7d562d',
+          cancelButtonColor: '#827472',
+          customClass: {
+            popup: 'rounded-3xl border border-[#eed5cf] shadow-xl font-sans',
+            title: 'font-headline-sm text-primary',
+            confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
+            cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+          }
+        });
+      }
+      return toastMixin.fire(title);
+    }
+    return toastMixin.fire({
+      icon: icon || 'info',
+      title: title,
+      html: text
+    });
+  },
+  error(message) {
+    return toastMixin.fire({
+      icon: 'error',
+      title: message
+    });
+  },
+  success(message) {
+    return toastMixin.fire({
+      icon: 'success',
+      title: message
+    });
+  }
+};
+
+const loading = ref(false);
 
 const props = defineProps({
     carts: Array,
+    midtransClientKey: String,
 })
 
 const formatRupiah = (value) => {
@@ -38,11 +101,66 @@ const removeItem = (cartItemId) => {
   });
 }
 
-// const trustBadges = [
-//   { icon: 'verified_user', label: 'Secure' },
-//   { icon: 'credit_card',   label: 'Encrypted' },
-//   { icon: 'undo',          label: '30-day Return' },
-// ];
+onMounted(() => {
+    const script = document.createElement('script');
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute('data-client-key', props.midtransClientKey);
+    document.head.appendChild(script);
+});
+
+// Checkout
+const checkout = async () => {
+    const confirm = await toast.fire({
+        title: 'Konfirmasi Pembayaran',
+        text: "Konfirmasi Pembayaran",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Lanjutkan',
+        confirmButtonColor: '#7d562d'
+    });
+
+    if (confirm.isConfirmed) {
+        loading.value = true;
+        try {
+            const response = await axios.post('/checkout'); 
+            // reload halaman agar keranjang langsung kosong
+            router.reload();
+            // buka popup Midtrans
+            openSnap(response.data.snap_token);
+            } catch (error) {
+                const message = error.response?.data?.message || 'Terjadi kesalahan sistem.';
+                toast.error(message);
+            } finally {
+                loading.value = false;
+            }
+        }
+    }
+
+    // fungsi membuka pop up midtrans (snap)
+    const openSnap = (token) => {
+        window.snap.pay(token, {
+            onSuccess: async (result) => {
+                try {
+                    await axios.post('/payment/success', result);
+                } catch (e) { console.error('Sync error:', e); }
+                toast.fire('Berhasil', 'Pembayaran Anda telah diterima', 'success')
+                    .then(() => router.reload());
+            },
+            onPending: async (result) => {
+                try {
+                    await axios.post('/payment/success', result);
+                } catch (e) { console.error('Sync error:', e); }
+                toast.fire('Menunggu Pembayaran', 'Silakan selesaikan pembayaran sesuai instruksi', 'info')
+                    .then(() => router.reload());
+            },
+            onError: (result) => {
+                toast.fire('Gagal', 'Pembayaran Anda gagal', 'error');
+            },
+            onClose: () => {
+                router.reload();
+            }
+        })
+    }
 </script>
 
 <template>
@@ -187,9 +305,10 @@ const removeItem = (cartItemId) => {
               </div>
 
               <!-- Checkout -->
-              <button class="w-full inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-on-secondary font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-secondary/20 hover:shadow-xl text-sm sm:text-base mb-3">
-                <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">lock</span>
-                Proceed to Checkout
+              <button @click="checkout" :disabled="loading" class="w-full inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-on-secondary font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-secondary/20 hover:shadow-xl text-sm sm:text-base mb-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span v-if="loading" class="animate-spin rounded-full h-5 w-5 border-2 border-on-secondary border-t-transparent"></span>
+                <span v-else class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">lock</span>
+                {{ loading ? 'Processing...' : 'Proceed to Checkout' }}
               </button>
             </div>
           </div>

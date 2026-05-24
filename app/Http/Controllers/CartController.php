@@ -6,10 +6,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Order;
+use App\Models\OrderItem;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Midtrans\Config;
+use Midtrans\Snap;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
+    public function __construct()
+    {
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+    }
+
     public function index() {
 
         $customer = Auth::user()->customer;
@@ -95,4 +109,96 @@ class CartController extends Controller
 
         return back()->with('success', 'Produk berhasil dihapus dari keranjang');
     }
+
+    public function checkout() {
+
+        $customer = Auth::user()->customer;
+        
+        $carts = CartItem::with('product')
+                ->where('customer_id', $customer->id)
+                ->get();
+
+        if ($carts->isEmpty()) {
+            return response()->json(['message' => 'Keranjang kosong'], 400);
+        }
+
+        foreach ($carts as $item) {
+            if ($item->qty > $item->product->stok) {
+                return response()->json(['message' => "{$item->product->nama_product} stok tidak cukup"], 400);
+            }
+        }
+
+        // create transaksi
+        DB::beginTransaction();
+
+        try {
+
+            $subtotal = $carts->sum(function ($item) {
+                return $item->qty * $item->product->harga;
+            });
+
+            $shippingCost = $subtotal >= 400000 ? 0 : 50000;
+
+            $totalPrice = $subtotal + $shippingCost;
+
+            $order = Order::create([
+                'customer_id' => $customer->id,
+                'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
+                'subtotal' => $subtotal,
+                'total_price' => $totalPrice,
+                'phone' => $customer->no_hp,
+                'shipping_address' => $customer->alamat,
+                'status' => 'pending',
+                'status_payment' => 'pending'
+            ]);
+
+            foreach ($carts as $item) {
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product->id,
+                    'price' => $item->product->harga,
+                    'qty' => $item->qty,
+                    'subtotal' => $item->qty * $item->product->harga
+                ]);
+            }
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $order->invoice_number,
+                    'gross_amount' => $totalPrice,
+                ],
+
+                'customer_details' => [
+                    'first_name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                    'phone' => $customer->no_hp,
+                ]
+            ];
+
+            $snapToken = Snap::getSnapToken($params);
+
+            $order->update([
+                'snap_token' => $snapToken
+            ]);
+
+            CartItem::where('customer_id', $customer->id)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'snap_token' => $snapToken
+            ]);
+
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+            
+            return response()->json(['message' => 'Gagal checkout: ' . $th->getMessage()], 500);
+        }
+
+    }
+        
+    
 }
