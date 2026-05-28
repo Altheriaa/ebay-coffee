@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\FonnteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Notification;
-use App\Services\FonnteService;
-use Illuminate\Support\Facades\Log;
+use Midtrans\Transaction;
 
 class PaymentNotificationController extends Controller
 {
@@ -24,9 +25,9 @@ class PaymentNotificationController extends Controller
     public function handle(Request $request)
     {
         try {
-            $notif = new Notification();
+            $notif = new Notification;
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Failed to parse Midtrans notification: ' . $th->getMessage()], 400);
+            return response()->json(['message' => 'Failed to parse Midtrans notification: '.$th->getMessage()], 400);
         }
 
         $transaction = $notif->transaction_status;
@@ -36,7 +37,7 @@ class PaymentNotificationController extends Controller
 
         // Verify signature key for security
         $serverKey = config('midtrans.server_key');
-        $expectedSignature = hash("sha512", $orderId . $notif->status_code . $notif->gross_amount . $serverKey);
+        $expectedSignature = hash('sha512', $orderId.$notif->status_code.$notif->gross_amount.$serverKey);
 
         if ($expectedSignature !== $notif->signature_key) {
             return response()->json(['message' => 'Invalid signature key'], 403);
@@ -45,7 +46,7 @@ class PaymentNotificationController extends Controller
         // Find the corresponding order by its invoice number
         $order = Order::with('orderItems.product')->where('invoice_number', $orderId)->first();
 
-        if (!$order) {
+        if (! $order) {
             return response()->json(['message' => 'Order not found'], 404);
         }
 
@@ -62,19 +63,19 @@ class PaymentNotificationController extends Controller
                     $paymentStatus = 'paid';
                 }
             }
-        } else if ($transaction == 'settlement') {
+        } elseif ($transaction == 'settlement') {
             $orderStatus = 'processing';
             $paymentStatus = 'paid';
-        } else if ($transaction == 'pending') {
+        } elseif ($transaction == 'pending') {
             $orderStatus = 'pending';
             $paymentStatus = 'pending';
-        } else if ($transaction == 'deny') {
+        } elseif ($transaction == 'deny') {
             $orderStatus = 'cancelled';
             $paymentStatus = 'failed';
-        } else if ($transaction == 'expire') {
+        } elseif ($transaction == 'expire') {
             $orderStatus = 'cancelled';
             $paymentStatus = 'expired';
-        } else if ($transaction == 'cancel') {
+        } elseif ($transaction == 'cancel') {
             $orderStatus = 'cancelled';
             $paymentStatus = 'failed';
         }
@@ -90,11 +91,11 @@ class PaymentNotificationController extends Controller
                 }
 
                 try {
-                    $wa = new FonnteService();
+                    $wa = new FonnteService;
                     $wa->notifyAdminNewOrder($order);
                     $wa->notifyOrderPaid($order);
                 } catch (\Throwable $e) {
-                    Log::warning('[Fonnte] Gagal kirim notifikasi pembayaran ke admin (handle): ' . $e->getMessage());
+                    Log::warning('[Fonnte] Gagal kirim notifikasi pembayaran ke admin (handle): '.$e->getMessage());
                 }
             }
 
@@ -102,7 +103,7 @@ class PaymentNotificationController extends Controller
             $order->update([
                 'status' => $orderStatus,
                 'status_payment' => $paymentStatus,
-                'payment_method' => $type
+                'payment_method' => $type,
             ]);
 
             // Save transaction details in payments table
@@ -112,15 +113,17 @@ class PaymentNotificationController extends Controller
                     'transaction_id' => $notif->transaction_id,
                     'payment_type' => $type,
                     'transaction_status' => $transaction,
-                    'payload' => json_encode($notif)
+                    'payload' => json_encode($notif),
                 ]
             );
 
             DB::commit();
+
             return response()->json(['message' => 'Notification processed successfully']);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $th->getMessage()], 500);
+
+            return response()->json(['message' => 'Database error: '.$th->getMessage()], 500);
         }
     }
 
@@ -129,13 +132,14 @@ class PaymentNotificationController extends Controller
         \Log::info('=== /payment/success HIT ===', ['payload' => $request->all()]);
 
         $request->validate([
-            'order_id' => 'required|string'
+            'order_id' => 'required|string',
         ]);
 
         $order = Order::with('orderItems.product')->where('invoice_number', $request->order_id)->first();
 
-        if (!$order) {
-            \Log::warning('Order not found for invoice: ' . $request->order_id);
+        if (! $order) {
+            \Log::warning('Order not found for invoice: '.$request->order_id);
+
             return response()->json(['message' => 'Order not found', 'order_id' => $request->order_id], 404);
         }
 
@@ -143,6 +147,7 @@ class PaymentNotificationController extends Controller
 
         if ($order->status_payment === 'paid') {
             \Log::info('Order already paid, skipping.');
+
             return response()->json(['message' => 'Already paid']);
         }
 
@@ -153,9 +158,9 @@ class PaymentNotificationController extends Controller
 
         // First try: query Midtrans API for authoritative status
         try {
-            $status = \Midtrans\Transaction::status($request->order_id);
+            $status = Transaction::status($request->order_id);
 
-            \Log::info('Midtrans API response', [
+            Log::info('Midtrans API response', [
                 'transaction_status' => $status->transaction_status ?? 'N/A',
                 'payment_type' => $status->payment_type ?? 'N/A',
             ]);
@@ -166,7 +171,7 @@ class PaymentNotificationController extends Controller
             $statusPayload = json_encode($status);
 
         } catch (\Throwable $th) {
-            \Log::warning('Midtrans API status check failed: ' . $th->getMessage());
+            Log::warning('Midtrans API status check failed: '.$th->getMessage());
 
             // Fallback: use values from Snap callback result sent by frontend
             $transactionStatus = $request->input('transaction_status');
@@ -180,8 +185,9 @@ class PaymentNotificationController extends Controller
             ]);
         }
 
-        if (!$transactionStatus) {
-            \Log::error('No transaction status available from API or callback.');
+        if (! $transactionStatus) {
+            Log::error('No transaction status available from API or callback.');
+
             return response()->json(['message' => 'Could not determine transaction status'], 422);
         }
 
@@ -196,17 +202,17 @@ class PaymentNotificationController extends Controller
                 }
 
                 try {
-                    $wa = new FonnteService();
+                    $wa = new FonnteService;
                     $wa->notifyAdminNewOrder($order);
                     $wa->notifyOrderPaid($order);
                 } catch (\Throwable $e) {
-                    Log::warning('[Fonnte] Gagal kirim notifikasi (success): ' . $e->getMessage());
+                    Log::warning('[Fonnte] Gagal kirim notifikasi (success): '.$e->getMessage());
                 }
 
                 $order->update([
                     'status' => 'processing',
                     'status_payment' => 'paid',
-                    'payment_method' => $paymentType ?? 'midtrans'
+                    'payment_method' => $paymentType ?? 'midtrans',
                 ]);
 
                 // Save payment record
@@ -216,21 +222,24 @@ class PaymentNotificationController extends Controller
                         'transaction_id' => $transactionId,
                         'payment_type' => $paymentType,
                         'transaction_status' => $transactionStatus,
-                        'payload' => $statusPayload
+                        'payload' => $statusPayload,
                     ]
                 );
 
                 DB::commit();
                 Log::info('Order updated to PAID successfully!');
+
                 return response()->json(['message' => 'Payment synced successfully']);
             } catch (\Throwable $th) {
                 DB::rollBack();
-                Log::error('DB update failed: ' . $th->getMessage());
-                return response()->json(['message' => 'DB error: ' . $th->getMessage()], 500);
+                Log::error('DB update failed: '.$th->getMessage());
+
+                return response()->json(['message' => 'DB error: '.$th->getMessage()], 500);
             }
         } else {
             Log::info('Transaction not yet settled', ['status' => $transactionStatus]);
-            return response()->json(['message' => 'Transaction status: ' . $transactionStatus]);
+
+            return response()->json(['message' => 'Transaction status: '.$transactionStatus]);
         }
     }
 }

@@ -7,7 +7,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RiwayatTransaksiController;
 use App\Http\Controllers\PaymentNotificationController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\LaporanKeuanganController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -16,14 +18,18 @@ Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout']);
 
+// // forgot password
+// Route::get('/forgot-password', [ForgotPasswordController::class, 'index'])->name('password.request');
+// Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
+
+// // reset password
+// Route::get('/reset-password/{token}', [ResetPasswordController::class, 'index'])->name('password.reset');
+// Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
 Route::get('/register', [RegisterController::class, 'index']);
 Route::post('/register', [RegisterController::class, 'store']);
 
-Route::get('/', function () {
-    return Inertia::render('Home', [
-        'message' => 'Selamat datang!'
-    ]);
-});
+Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/shop', [ProductController::class, 'index'])->name('shop');
 Route::get('/shop/{product}', [ProductController::class, 'show'])->name('shop.show');
@@ -57,47 +63,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/password', [ProfileController::class, 'password']);
 
     // Print Laporan Keuangan Admin
-    Route::get('/baycoffee-admin/laporan-keuangan/print', function (\Illuminate\Http\Request $request) {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $filterType = $request->query('filter_type', 'all');
-        $selectedDate = $request->query('date', date('Y-m-d'));
-        $selectedMonth = $request->query('month', date('m'));
-        $selectedYear = $request->query('year', date('Y'));
-
-        $orderQuery = \App\Models\Order::query()->where('status_payment', 'paid');
-
-        if ($filterType === 'hari') {
-            $orderQuery->whereDate('created_at', $selectedDate);
-        } elseif ($filterType === 'bulan') {
-            $orderQuery->whereMonth('created_at', $selectedMonth)->whereYear('created_at', $selectedYear);
-        } elseif ($filterType === 'tahun') {
-            $orderQuery->whereYear('created_at', $selectedYear);
-        }
-
-        $orders = $orderQuery->with('customer')->orderBy('created_at', 'desc')->get();
-
-        $totalPemasukan = $orders->sum('total_price');
-
-        $months = [
-            '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
-            '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
-            '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
-        ];
-
-        $periodLabel = 'Semua Periode';
-        if ($filterType === 'hari') {
-            $periodLabel = 'Hari Ini (' . \Carbon\Carbon::parse($selectedDate)->format('d M Y') . ')';
-        } elseif ($filterType === 'bulan') {
-            $periodLabel = 'Bulan ' . ($months[$selectedMonth] ?? '') . ' ' . $selectedYear;
-        } elseif ($filterType === 'tahun') {
-            $periodLabel = 'Tahun ' . $selectedYear;
-        }
-
-        return view('filament.pages.print', compact(
-            'orders', 'totalPemasukan', 'periodLabel'
-        ));
-    })->name('admin.laporan-keuangan.print');
+    Route::get('/baycoffee-admin/laporan-keuangan/print', [LaporanKeuanganController::class, 'print'])
+        ->name('admin.laporan-keuangan.print');
 });

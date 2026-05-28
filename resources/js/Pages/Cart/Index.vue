@@ -289,7 +289,7 @@ const checkout = async () => {
                 <div class="flex justify-between text-sm">
                   <span class="text-on-surface-variant">Shipping</span>
                   <span class="font-semibold text-primary" :class="subtotal >= 400000 ? 'text-secondary' : ''">
-                    {{ subtotal >= 400000 ? 'Gratis' : formatRupiah(50000) }}
+                    {{ subtotal >= 400000 ? 'Gratis' : formatRupiah(30000) }}
                   </span>
                 </div>
                 <div v-if="subtotal >= 400000" class="flex items-center gap-1.5 text-secondary text-xs">

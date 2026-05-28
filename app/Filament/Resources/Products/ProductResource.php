@@ -109,11 +109,11 @@ class ProductResource extends Resource
                 TextColumn::make('stok')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('weight')
+                    ->label('Berat')
+                    ->sortable(),
                 TextColumn::make('satuan')
                     ->label('Satuan')
-                    ->sortable(),
-                TextColumn::make('weight')
-                    ->label('Banyaknya')
                     ->sortable(),
                 ImageColumn::make('foto_product')
                     ->height('200px')

@@ -250,6 +250,7 @@ function buyAgain(tx) {
 function downloadInvoice(tx) {
   window.open(`/transaksi/${tx.id}/invoice`, '_blank');
 }
+
 </script>
 
 <template>

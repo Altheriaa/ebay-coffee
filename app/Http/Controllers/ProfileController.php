@@ -2,30 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
-    public function index() {
+    public function index()
+    {
 
         $customer = Auth::user();
 
         $user = User::with('customer')->where('id', $customer->id)->first();
 
-        if (!$user) {
+        if (! $user) {
             return abort(404);
         }
 
         return Inertia::render('Profile/Show', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
 
         $user = Auth::user();
 
@@ -50,7 +52,8 @@ class ProfileController extends Controller
         return redirect()->back()->with('success', 'Profile berhasil diperbarui');
     }
 
-    public function password(Request $request) {
+    public function password(Request $request)
+    {
 
         $request->validate([
             'old_password' => 'required',
@@ -59,7 +62,7 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        if (!Hash::check($request->old_password, $user->password)) {
+        if (! Hash::check($request->old_password, $user->password)) {
             return back()->withErrors([
                 'old_password' => 'Password lama salah',
             ]);

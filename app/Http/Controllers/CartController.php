@@ -13,7 +13,6 @@ use Inertia\Inertia;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -138,7 +137,7 @@ class CartController extends Controller
                 return $item->qty * $item->product->harga;
             });
 
-            $shippingCost = $subtotal >= 400000 ? 0 : 50000;
+            $shippingCost = $subtotal >= 300000 ? 0 : 30000;
 
             $totalPrice = $subtotal + $shippingCost;
 

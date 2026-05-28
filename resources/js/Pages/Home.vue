@@ -2,7 +2,13 @@
 import { Link } from '@inertiajs/vue3';
 import AppLayout from './Layouts/App.vue';
 
-defineProps({ message: String });
+defineProps({ 
+  message: String,
+  products: {
+    type: Array,
+    default: () => []
+  }
+});
 
 const badges = [
   { icon: 'local_shipping',    label: 'Free Shipping',          sub: 'On orders over Rp 400.000'  },
@@ -37,13 +43,6 @@ const stats = [
   { value: '50k+', label: 'Happy customers'    },
   { value: '48hr', label: 'From roast to door' },
   { value: '100%', label: 'Traceable origins'  },
-];
-
-const products = [
-  { name: 'Ethiopian Yirgacheffe', weight: '12oz · Light Roast',  price: 'Rp 180.000', rating: '4.9', icon: 'coffee',       badge: 'Best Seller' },
-  { name: 'Guatemala Antigua',     weight: '12oz · Medium Roast', price: 'Rp 165.000', rating: '4.8', icon: 'local_cafe',   badge: null          },
-  { name: 'House Blend – Medium',  weight: '16oz · Medium Roast', price: 'Rp 210.000', rating: '4.7', icon: 'coffee_maker', badge: 'Hot'         },
-  { name: 'French Roast Dark',     weight: '16oz · Dark Roast',   price: 'Rp 210.000', rating: '4.6', icon: 'inventory_2',  badge: null          },
 ];
 
 const reviews = [
@@ -222,7 +221,8 @@ const reviews = [
             class="group bg-surface-container-lowest rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-sm border border-outline-variant/20 flex flex-col"
           >
             <div class="relative aspect-square overflow-hidden bg-surface-container-low">
-              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-container to-surface-container-high">
+              <img v-if="product.foto_product" :src="'/storage/' + product.foto_product" :alt="product.name" class="w-full h-full object-cover">
+              <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-container to-surface-container-high">
                 <span class="material-symbols-outlined text-outline/40" style="font-size:64px; font-variation-settings:'FILL' 1">{{ product.icon }}</span>
               </div>
             </div>

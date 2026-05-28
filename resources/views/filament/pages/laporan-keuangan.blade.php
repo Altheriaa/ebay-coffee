@@ -147,7 +147,7 @@
         <x-filament::section>
             <div class="custom-stat-card">
                 <div>
-                    <p style="font-size: 0.875rem; color: #6b7280; font-weight: 500;">Total Transaksi Lunas</p>
+                    <p style="font-size: 0.875rem; color: #6b7280; font-weight: 500;">Total Transaksi </p>
                     <p style="font-size: 1.875rem; font-weight: 700; margin-top: 0.25rem;">{{ $data['totalTransaksi'] }}</p>
                 </div>
                 <div class="custom-stat-icon-wrapper" style="background-color: rgba(59, 130, 246, 0.1);">
@@ -225,7 +225,7 @@
                 @if ($data['totalTransaksi'] > 0)
                     <tfoot>
                         <tr>
-                            <td colspan="4" class="custom-report-td" style="text-align: right; font-weight: 700; border-bottom: none;">Total Pendapatan Bersih:</td>
+                            <td colspan="4" class="custom-report-td" style="text-align: right; font-weight: 700; border-bottom: none;">Total Pendapatan :</td>
                             <td class="custom-report-td" style="text-align: right; font-size: 1.125rem; font-weight: 700; color: #10b981; border-bottom: none;">
                                 Rp {{ number_format($data['totalPemasukan'], 0, ',', '.') }}
                             </td>
