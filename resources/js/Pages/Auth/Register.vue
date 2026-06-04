@@ -12,7 +12,8 @@
       <div class="relative z-10 flex flex-col justify-between p-12 h-full">
         <!-- Logo -->
         <Link href="/" class="flex items-center gap-2.5">
-          <span class="font-bold text-xl text-on-primary tracking-tight" style="font-family:'Playfair Display',serif;">Bay &amp; Coffee</span>
+          <img src="/assets/Logo Bay Coffee.png" alt="Bay Coffee Logo" class="w-8 h-8 rounded-full">
+          <span class="font-bold text-lg text-on-primary tracking-tight" style="font-family:'Playfair Display',serif;">Bay <span class="font-medium italic">Coffee</span></span>
         </Link>
       </div>
     </div>
@@ -22,7 +23,10 @@
 
       <!-- Mobile logo -->
       <div class="flex lg:hidden justify-center gap-2.5 mb-12">
-        <span class="font-bold text-2xl text-primary tracking-tight" style="font-family:'Playfair Display',serif;">Bay &amp; Coffee</span>
+        <Link href="/" class="flex items-center gap-2 logo-brand">
+          <img src="/assets/Logo Bay Coffee.png" alt="Bay Coffee Logo" class="w-8 h-8 rounded-full">
+          <span class="font-bold text-xl text-primary tracking-tight" style="font-family:'Playfair Display',serif;">Bay <span class="font-medium italic logo-coffee-gradient">Coffee</span></span>
+        </Link>
       </div>
 
       <div class="w-full max-w-md mx-auto">
@@ -182,7 +186,7 @@
           <button
             type="submit"
             :disabled="!agreedToTerms"
-            class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-on-primary font-semibold py-3.5 rounded-xl shadow-md shadow-primary/20 hover:shadow-md text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+            class="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-on-secondary font-semibold py-3.5 rounded-xl shadow-md shadow-secondary/20 hover:shadow-md text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200"
           >
             <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">how_to_reg</span>
             Buat Akun

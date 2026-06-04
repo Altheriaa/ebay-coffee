@@ -1,16 +1,59 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import AppLayout from '../Layouts/App.vue';
 
-const categories = ['Asal Tunggal', 'Racikan', 'Tanpa Kafein', 'Beraroma'];
-const roastLevels = ['Ringan', 'Sedang', 'Sedang-Gelap', 'Gelap'];
-const priceRanges = ['Di bawah Rp 150.000', 'Rp 150.000 – Rp 200.000', 'Rp 200.000 – Rp 300.000', 'Di atas Rp 300.000'];
+// const categories = ['Asal Tunggal', 'Racikan', 'Tanpa Kafein', 'Beraroma'];
+// const roastLevels = ['Ringan', 'Sedang', 'Sedang-Gelap', 'Gelap'];
+const priceRanges = [
+  { key: 'all', label: 'Semua Harga' },
+  { key: 'under_150', label: 'Di bawah Rp 150.000' },
+  { key: '150_200', label: 'Rp 150.000 – Rp 200.000' },
+  { key: '200_300', label: 'Rp 200.000 – Rp 300.000' },
+  { key: 'above_300', label: 'Di atas Rp 300.000' }
+];
 
 const props = defineProps({
     products: Array,
+    categories: Array,
     error: Object,
+    selectedCategory: String,
+    selectedPrice: String,
 })
+
+const activeCategories = computed(() => {
+    return props.selectedCategory ? props.selectedCategory.split(',').map(Number) : [];
+});
+
+const toggleCategory = (id) => {
+    let ids = [...activeCategories.value];
+    const index = ids.indexOf(id);
+    if (index > -1) {
+        ids.splice(index, 1);
+    } else {
+        ids.push(id);
+    }
+    
+    router.get('/shop', {
+        category: ids.length > 0 ? ids.join(',') : undefined,
+        price: props.selectedPrice !== 'all' ? props.selectedPrice : undefined,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    });
+};
+
+const filterPrice = (key) => {
+    router.get('/shop', {
+        category: activeCategories.value.length > 0 ? activeCategories.value.join(',') : undefined,
+        price: key !== 'all' ? key : undefined,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    });
+};
 
 const formatRupiah = (value) => {
   return 'Rp ' + value.toLocaleString('id-ID');
@@ -62,7 +105,7 @@ const addToCart = (productId) => {
               </h3>
 
               <!-- Category -->
-              <div class="mb-6">
+              <!-- <div class="mb-6">
                 <h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Kategori</h4>
                 <div class="flex flex-col gap-2">
                   <label v-for="cat in categories" :key="cat" class="flex items-center gap-2.5 cursor-pointer group">
@@ -70,15 +113,20 @@ const addToCart = (productId) => {
                     <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors duration-200">{{ cat }}</span>
                   </label>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Roast Level -->
               <div class="mb-6">
-                <h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Tingkat Sangrai</h4>
+                <h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Kategori</h4>
                 <div class="flex flex-col gap-2">
-                  <label v-for="roast in roastLevels" :key="roast" class="flex items-center gap-2.5 cursor-pointer group">
-                    <input type="checkbox" class="w-4 h-4 rounded border-outline-variant text-secondary accent-secondary" />
-                    <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors duration-200">{{ roast }}</span>
+                  <label v-for="roast in categories" :key="roast.id" class="flex items-center gap-2.5 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      class="w-4 h-4 rounded border-outline-variant text-secondary accent-secondary cursor-pointer"
+                      :checked="activeCategories.includes(roast.id)"
+                      @change="toggleCategory(roast.id)"
+                    />
+                    <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors duration-200">{{ roast.nama_kategori }}</span>
                   </label>
                 </div>
               </div>
@@ -87,9 +135,16 @@ const addToCart = (productId) => {
               <div>
                 <h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Rentang Harga</h4>
                 <div class="flex flex-col gap-2">
-                  <label v-for="range in priceRanges" :key="range" class="flex items-center gap-2.5 cursor-pointer group">
-                    <input type="radio" name="price" class="w-4 h-4 border-outline-variant text-secondary accent-secondary" />
-                    <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors duration-200">{{ range }}</span>
+                  <label v-for="range in priceRanges" :key="range.key" class="flex items-center gap-2.5 cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="price" 
+                      class="w-4 h-4 border-outline-variant text-secondary accent-secondary cursor-pointer" 
+                      :value="range.key"
+                      :checked="(selectedPrice || 'all') === range.key"
+                      @change="filterPrice(range.key)"
+                    />
+                    <span class="text-sm text-on-surface-variant group-hover:text-primary transition-colors duration-200">{{ range.label }}</span>
                   </label>
                 </div>
               </div>
@@ -98,20 +153,6 @@ const addToCart = (productId) => {
 
           <!-- PRODUCT GRID AREA -->
           <div class="flex-grow">
-
-            <!-- Toolbar -->
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-              <p class="text-sm text-on-surface-variant">Menampilkan <span class="font-semibold text-primary">{{ products.length }}</span> produk</p>
-              <div class="flex items-center gap-3">
-                <select class="text-sm bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-3 py-2 text-on-surface-variant focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200 cursor-pointer">
-                  <option>Urutkan: Unggulan</option>
-                  <option>Harga: Rendah ke Tinggi</option>
-                  <option>Harga: Tinggi ke Rendah</option>
-                  <option>Penilaian</option>
-                  <option>Terbaru</option>
-                </select>
-              </div>
-            </div>
 
             <!-- Product Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">

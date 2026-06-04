@@ -66,7 +66,7 @@ const userInitials = computed(() => {
         <p class="text-sm text-on-primary/60 mt-1">Kelola data informasi diri, alamat, dan keamanan akun Anda</p>
       </div>
     </section>
-    laj
+
     <section class="py-8 sm:py-12 bg-background">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row gap-8">

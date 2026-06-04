@@ -6,8 +6,13 @@
       <div class="flex justify-between items-center w-full h-20 px-6 max-w-7xl mx-auto">
 
         <!-- Logo -->
-        <Link href="/" class="flex items-center gap-2.5">
-          <span class="font-bold text-lg sm:text-xl text-primary" style="font-family:'Playfair Display',serif;">Bay &amp; Coffee</span>
+        <Link href="/" class="flex items-center gap-2.5 group logo-brand">
+          <img src="/assets/Logo Bay Coffee.png" alt="Bay Coffee Logo" class="w-9 h-9 rounded-full ring-1 ring-secondary/20 group-hover:ring-secondary/50 transition-all duration-300">
+          <!-- Brand Text -->
+          <div class="flex items-baseline gap-1 leading-none">
+            <span class="font-bold text-[18px] text-primary tracking-tight transition-colors duration-300 group-hover:text-secondary" style="font-family:'Playfair Display',serif;">Bay</span>
+            <span class="font-medium italic text-[18px] logo-coffee-gradient" style="font-family:'Playfair Display',serif;">Coffee</span>
+          </div>
         </Link>
 
         <!-- Desktop Nav -->
@@ -121,7 +126,7 @@
           <div class="max-w-md">
             <div class="flex items-center gap-2.5 mb-4">
               <span class="font-bold text-xl tracking-tight text-on-primary" style="font-family:'Playfair Display',serif;">
-                Bay &amp; Coffee
+                Bay <span class="font-medium italic text-tertiary-fixed-dim">Coffee</span>
               </span>
             </div>
             <p class="text-sm text-on-primary/70 leading-relaxed mb-6">
@@ -196,11 +201,11 @@ const Toast = Swal.mixin({
   showConfirmButton: false,
   timer: 3000,
   timerProgressBar: true,
-  background: '#271310',
-  color: '#fff8f6',
-  iconColor: '#f0bd8b',
+  background: '#1a2e1c',
+  color: '#faf7f2',
+  iconColor: '#81c784',
   customClass: {
-    popup: 'rounded-2xl border border-[#7d562d]/30 shadow-lg font-sans',
+    popup: 'rounded-2xl border border-[#2e8b38]/30 shadow-lg font-sans',
   },
   didOpen: (toast) => {
     toast.onmouseenter = Swal.stopTimer;

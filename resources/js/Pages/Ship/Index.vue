@@ -11,11 +11,11 @@ const toastMixin = Swal.mixin({
   showConfirmButton: false,
   timer: 3000,
   timerProgressBar: true,
-  background: '#271310',
-  color: '#fff8f6',
-  iconColor: '#f0bd8b',
+  background: '#1a2e1c',
+  color: '#faf7f2',
+  iconColor: '#81c784',
   customClass: {
-    popup: 'rounded-2xl border border-[#7d562d]/30 shadow-lg font-sans',
+    popup: 'rounded-2xl border border-secondary/30 shadow-lg font-sans',
   },
   didOpen: (toastEl) => {
     toastEl.onmouseenter = Swal.stopTimer;
@@ -29,12 +29,12 @@ const toast = {
       if (title.showCancelButton || title.input) {
         return Swal.fire({
           ...title,
-          background: '#fff8f6',
-          color: '#271310',
-          confirmButtonColor: '#7d562d',
-          cancelButtonColor: '#827472',
+          background: '#faf7f2',
+          color: '#1a2e1c',
+          confirmButtonColor: '#2e8b38',
+          cancelButtonColor: '#4a4639',
           customClass: {
-            popup: 'rounded-3xl border border-[#eed5cf] shadow-xl font-sans',
+            popup: 'rounded-3xl border border-outline-variant shadow-xl font-sans',
             title: 'font-headline-sm text-primary',
             confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
             cancelButton: 'rounded-xl px-5 py-2.5 font-bold'

@@ -19,22 +19,25 @@ const badges = [
 
 const collections = [
   {
-    name: 'Light Roast',
-    tag: 'Bright & Vibrant',
-    desc: 'Floral, citrus, and berry notes. Perfect for pour-over and filter brews.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmZvw5twNUS227wksoxR7lwpIMKw-uNkeYnq_-vD_k2iLW-nUkiebkTEwTURe8W0RomTjAG877jAbE5G3eAsUVJ4uZxrw8hz4sK1WCKaF_wEI9sp120bC0zRYP242J6FMoofokqLISkcztapYTYI1g0Wh21Ikggb6fNFQYwR7scgLyHhL3xJK3Zyl-RllQNBaQ4LkX9MEt0c6NcO8GEJoVnG4ILsHK-re2Kc6ZI-78DAvvY2dZhu5mgVVVSGDzBIRnAnVrcqtyBcg',
+    name: 'Biji Kopi (Whole Beans)',
+    tag: 'Fresh & Whole',
+    desc: 'Biji kopi pilihan yang baru disangrai. Ideal untuk Anda yang suka menggiling kopi sendiri di rumah.',
+    href: '/shop?category=2',
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=600&auto=format&fit=crop',
   },
   {
-    name: 'Medium Roast',
-    tag: 'Balanced & Smooth',
-    desc: 'Caramel, chocolate, and toasted nuts. A crowd favourite for any brew method.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB2Pb6HcvAmDiZmgfuFS9OencFP5pwh-dJZ13As8Kny5xnwTj674bVxA-qa4qD6_23pfHH4lNa1ZwgA-6TCFlTy5jWrr484inalYHMuhUV9u6fYxXpdG2Bes-XPLEctO8zx08R4uzElOjuh4y6eZclCL5mU9dCx_Bk84ZNuKh6ZYeUGbam_wjyIty7_84ESONIjFAwMEcSy9AEorAZu5VXSTfV_ToC4PMVF7yt8aeTfXtcq65vgjZKPQTrTA_aalH1maWD9fr42Gzo',
+    name: 'Bubuk Halus (Fine Grind)',
+    tag: 'Rich & Intense',
+    desc: 'Gilingan halus presisi. Sangat cocok untuk metode seduh Espresso, Moka Pot, atau kopi Tubruk.',
+    href: '/shop?category=3',
+    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=600&auto=format&fit=crop',
   },
   {
-    name: 'Dark Roast',
-    tag: 'Bold & Intense',
-    desc: 'Smoky, dark cocoa and espresso character. Ideal for strong morning brews.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA2_fclPdI7Mf2H1W0RDS2TI4hbvgR5Z3GAAyBKhRpf5aXcThkkG2HfSyIt09-01sngvka4Yd-S31LT2O-8V0rCvj-FOP4lEA0QiHKVpWfOD4OfS_6unOw3gr4v2GoLe558hLxBjR3xC3KrATPGag-O9kZPTQaYOJ8Hx8XxInteKYVpu81e2VRgvDzwRKI5YTyGPTZkhfE_jlmsnGdHigLMK6Z1sP0h33biK1yYonte32uVA69mMZ708l5NmJCXMIEx2LdAUheHvdM',
+    name: 'Bubuk Kasar (Coarse Grind)',
+    tag: 'Bold & Classic',
+    desc: 'Gilingan kasar dengan ekstraksi merata. Sempurna untuk French Press maupun Cold Brew.',
+    href: '/shop?category=5',
+    image: 'https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?q=80&w=600&auto=format&fit=crop',
   },
 ];
 
@@ -46,9 +49,9 @@ const stats = [
 ];
 
 const reviews = [
-  { name: 'Sarah M.', location: 'New York, USA',  quote: 'The Ethiopian Yirgacheffe is absolutely stunning — floral and bright, unlike anything I\'ve had from a local café.',                                          color: '#7d562d' },
-  { name: 'James K.', location: 'London, UK',     quote: 'I\'ve tried dozens of subscription services. Ebay & Coffee is the only one I keep coming back to. The freshness makes all the difference.',              color: '#271310' },
-  { name: 'Priya R.', location: 'Melbourne, AUS', quote: 'Sustainable sourcing that you can actually taste. Knowing the farm my beans came from makes every sip feel meaningful.',                                   color: '#745853' },
+  { name: 'Sarah M.', location: 'New York, USA',  quote: 'The Ethiopian Yirgacheffe is absolutely stunning — floral and bright, unlike anything I\'ve had from a local café.',                                          color: '#2e8b38' },
+  { name: 'James K.', location: 'London, UK',     quote: 'I\'ve tried dozens of subscription services. Ebay & Coffee is the only one I keep coming back to. The freshness makes all the difference.',              color: '#1a2e1c' },
+  { name: 'Priya R.', location: 'Melbourne, AUS', quote: 'Sustainable sourcing that you can actually taste. Knowing the farm my beans came from makes every sip feel meaningful.',                                   color: '#7a5230' },
 ];
 </script>
 
@@ -134,15 +137,16 @@ const reviews = [
             <p class="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-secondary mb-1.5">Pilihan Kami</p>
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">Koleksi Pilihan</h2>
           </div>
-          <a href="#" class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-on-secondary-container transition-colors duration-200 self-start sm:self-auto">
+          <Link href="/shop" class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-on-secondary-container transition-colors duration-200 self-start sm:self-auto">
             Lihat semua
             <span class="material-symbols-outlined text-base">arrow_forward</span>
-          </a>
+          </Link>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div v-for="col in collections" :key="col.name"
-            class="group relative overflow-hidden rounded-2xl cursor-pointer"
+          <Link v-for="col in collections" :key="col.name"
+            :href="col.href"
+            class="group relative overflow-hidden rounded-2xl cursor-pointer block"
           >
             <div class="aspect-[4/3] overflow-hidden">
               <img :src="col.image" :alt="col.name"
@@ -154,12 +158,12 @@ const reviews = [
               <span class="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-1">{{ col.tag }}</span>
               <h3 class="text-lg sm:text-xl font-bold text-on-primary">{{ col.name }}</h3>
               <p class="text-xs sm:text-sm text-on-primary/70 mt-1 line-clamp-2">{{ col.desc }}</p>
-              <button class="mt-3 sm:mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/35 backdrop-blur-sm text-on-primary text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-white/30 transition-all duration-200 sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+              <div class="mt-3 sm:mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/35 backdrop-blur-sm text-on-primary text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-white/30 transition-all duration-200 sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                 Jelajahi
                 <span class="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>
