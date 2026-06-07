@@ -74,18 +74,18 @@ const reviews = [
           <!-- Badge -->
           <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 mb-6 sm:mb-8">
             <span class="w-2 h-2 bg-secondary rounded-full animate-pulse flex-shrink-0"></span>
-            <span class="text-[10px] sm:text-xs font-bold text-on-primary tracking-widest uppercase">PANEN BARU TERSEDIA</span>
+            <span class="text-[10px] sm:text-xs font-bold text-on-primary tracking-widest uppercase">Kedai Kopi Online</span>
           </div>
 
           <!-- Heading -->
-          <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-on-primary leading-[1.12] mb-5 sm:mb-6">
-            Baru Dipanggang.<br/>
-            <span class="text-primary-fixed-dim">Dikirim ke Pintu Anda.</span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-on-primary leading-[1.12] mb-5 sm:mb-6">
+            Bay Coffee.<br/>
+            <span class="text-primary-fixed-dim">Roastery</span>
           </h1>
 
           <!-- Subtitle -->
           <p class="text-sm sm:text-base lg:text-lg text-on-primary/75 mb-8 sm:mb-10 leading-relaxed">
-            Temukan secangkir kopi sempurna dengan sangraian artisanal kami — bersumber dari perkebunan berkelanjutan dan dikirim dalam waktu 48 jam setelah dipanggang.
+            Cita rasa istimewa dari perpaduan Bubuk Kopi Arabica Gayo dan Robusta Kelas Premium, menghadirkan aroma khas serta kenikmatan kopi yang autentik di setiap seduhan.
           </p>
 
           <!-- CTA Buttons -->

@@ -68,6 +68,9 @@ class CustomerResource extends Resource
                     ->searchable(),
                 TextColumn::make('no_hp')
                     ->searchable(),
+                TextColumn::make('alamat')
+                    ->label('alamat')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
