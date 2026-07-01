@@ -21,8 +21,13 @@ class HomeController extends Controller
             ];
         });
 
+        $minPrice = Product::min('harga') ?? 0;
+        $maxPrice = Product::max('harga') ?? 0;
+
         return Inertia::render('Home', [
             'products' => $products,
+            'minPrice' => 'Rp ' . number_format($minPrice, 0, ',', '.'),
+            'maxPrice' => 'Rp ' . number_format($maxPrice, 0, ',', '.'),
         ]);
     }
 }

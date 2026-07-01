@@ -7,7 +7,9 @@ defineProps({
   products: {
     type: Array,
     default: () => []
-  }
+  },
+  minPrice: String,
+  maxPrice: String,
 });
 
 const badges = [
@@ -49,9 +51,9 @@ const stats = [
 ];
 
 const reviews = [
-  { name: 'Sarah M.', location: 'New York, USA',  quote: 'The Ethiopian Yirgacheffe is absolutely stunning — floral and bright, unlike anything I\'ve had from a local café.',                                          color: '#2e8b38' },
-  { name: 'James K.', location: 'London, UK',     quote: 'I\'ve tried dozens of subscription services. Ebay & Coffee is the only one I keep coming back to. The freshness makes all the difference.',              color: '#1a2e1c' },
-  { name: 'Priya R.', location: 'Melbourne, AUS', quote: 'Sustainable sourcing that you can actually taste. Knowing the farm my beans came from makes every sip feel meaningful.',                                   color: '#7a5230' },
+  { name: 'Budi S.', location: 'Jakarta, ID',  quote: 'Kopi Arabica Gayo-nya benar-benar luar biasa — aroma floralnya sangat khas dan segar, belum pernah saya temukan di kafe lokal mana pun.', color: '#2e8b38' },
+  { name: 'Rina M.', location: 'Bandung, ID',  quote: 'Sudah mencoba berbagai toko kopi langganan, tapi Bay Coffee yang paling juara. Kesegaran biji kopi yang baru disangrai benar-benar terasa bedanya.', color: '#1a2e1c' },
+  { name: 'Dimas A.', location: 'Surabaya, ID', quote: 'Kualitas kopi yang bersumber langsung dari petani lokal sangat terasa di setiap seduhannya. Kopi premium dengan harga yang sangat masuk akal.', color: '#7a5230' },
 ];
 </script>
 
@@ -84,9 +86,14 @@ const reviews = [
           </h1>
 
           <!-- Subtitle -->
-          <p class="text-sm sm:text-base lg:text-lg text-on-primary/75 mb-8 sm:mb-10 leading-relaxed">
+          <p class="text-sm sm:text-base lg:text-lg text-on-primary/75 mb-4 sm:mb-6 leading-relaxed">
             Cita rasa istimewa dari perpaduan Bubuk Kopi Arabica Gayo dan Robusta Kelas Premium, menghadirkan aroma khas serta kenikmatan kopi yang autentik di setiap seduhan.
           </p>
+          
+          <div v-if="minPrice && maxPrice" class="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md border border-white/10 rounded-lg px-4 py-2.5 mb-8 sm:mb-10 shadow-inner">
+            <span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings:'FILL' 1">local_offer</span>
+            <span class="text-sm sm:text-base font-medium text-white/90">Harga mulai <strong class="text-white">{{ minPrice }} - {{ maxPrice }}</strong></span>
+          </div>
 
           <!-- CTA Buttons -->
           <div class="flex flex-col sm:flex-row gap-3">
