@@ -35,6 +35,42 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    /**
+     * Owner tidak bisa menambah user.
+     */
+    public static function canCreate(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa mengedit user.
+     */
+    public static function canEdit($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa menghapus user.
+     */
+    public static function canDelete($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa bulk delete.
+     */
+    public static function canDeleteAny(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -49,7 +85,7 @@ class UserResource extends Resource
                     ->password()
                     ->required(),
                 Select::make('role')
-                    ->options(['admin' => 'Admin', 'pelanggan' => 'Pelanggan'])
+                    ->options(['admin' => 'Admin', 'pelanggan' => 'Pelanggan', 'owner' => 'Owner'])
                     ->default('pelanggan')
                     ->required(),
             ]);
@@ -81,13 +117,15 @@ class UserResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])->visible(fn () => auth()->user()?->role !== 'owner'),
             ]);
     }
 

@@ -41,6 +41,42 @@ class ProductResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama_product';
 
+    /**
+     * Owner tidak bisa menambah produk.
+     */
+    public static function canCreate(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa mengedit produk.
+     */
+    public static function canEdit($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa menghapus produk.
+     */
+    public static function canDelete($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa bulk delete.
+     */
+    public static function canDeleteAny(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -131,13 +167,15 @@ class ProductResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])->visible(fn () => auth()->user()?->role !== 'owner'),
             ]);
     }
 

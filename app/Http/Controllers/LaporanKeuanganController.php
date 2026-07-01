@@ -10,7 +10,7 @@ class LaporanKeuanganController extends Controller
 {
     public function print(Request $request)
     {
-        if (auth()->user()->role !== 'admin') {
+        if (!in_array(auth()->user()->role, ['admin', 'owner'])) {
             abort(403);
         }
 

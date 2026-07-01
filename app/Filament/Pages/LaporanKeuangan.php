@@ -10,6 +10,14 @@ use Filament\Support\Icons\Heroicon;
 
 class LaporanKeuangan extends Page
 {
+    /**
+     * Admin dan Owner bisa mengakses halaman Laporan Keuangan.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && in_array($user->role, ['admin', 'owner']);
+    }
     protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedCalculator;
 
     protected static string | UnitEnum | null $navigationGroup = 'Manajemen Keuangan';

@@ -21,5 +21,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Akun Owner pertama
+        User::factory()->create([
+            'name' => 'Owner Bay Coffee',
+            'email' => 'owner@baycoffee.com',
+            'password' => bcrypt('password'),
+            'role' => 'owner',
+        ]);
     }
 }

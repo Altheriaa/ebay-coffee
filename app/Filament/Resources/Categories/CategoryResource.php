@@ -33,6 +33,42 @@ class CategoryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama_category';
 
+    /**
+     * Owner tidak bisa menambah kategori.
+     */
+    public static function canCreate(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa mengedit kategori.
+     */
+    public static function canEdit($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa menghapus kategori.
+     */
+    public static function canDelete($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa bulk delete.
+     */
+    public static function canDeleteAny(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -62,13 +98,15 @@ class CategoryResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])->visible(fn () => auth()->user()?->role !== 'owner'),
             ]);
     }
 

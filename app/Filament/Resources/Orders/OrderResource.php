@@ -41,6 +41,42 @@ class OrderResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'invoice_number';
 
+    /**
+     * Owner tidak bisa membuat order.
+     */
+    public static function canCreate(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Tidak ada yang bisa mengedit order secara manual (termasuk admin).
+     * Semua perubahan status dilakukan melalui tombol aksi.
+     */
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    /**
+     * Owner tidak bisa menghapus order.
+     */
+    public static function canDelete($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa bulk delete.
+     */
+    public static function canDeleteAny(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::whereIn('status', ['pending', 'processing'])->count();
@@ -170,20 +206,19 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
                 Action::make('proses')
                     ->label('Proses')
                     ->color('info')
                     ->icon('heroicon-o-arrow-path')
                     ->requiresConfirmation()
-                    ->visible(fn (Order $record) => $record->status === 'pending')
+                    ->visible(fn (Order $record) => auth()->user()?->role !== 'owner' && $record->status === 'pending')
                     ->action(fn (Order $record) => $record->update(['status' => 'processing'])),
                 Action::make('kirim')
                     ->label('Kirim')
                     ->color('primary')
                     ->icon('heroicon-o-truck')
                     ->requiresConfirmation()
-                    ->visible(fn (Order $record) => $record->status === 'processing')
+                    ->visible(fn (Order $record) => auth()->user()?->role !== 'owner' && $record->status === 'processing')
                     ->action(function (Order $record) {
                         $record->update(['status' => 'shipped']);
                         try {
@@ -198,7 +233,7 @@ class OrderResource extends Resource
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
-                    ->visible(fn (Order $record) => $record->status === 'shipped')
+                    ->visible(fn (Order $record) => auth()->user()?->role !== 'owner' && $record->status === 'shipped')
                     ->action(function (Order $record) {
                         $record->update(['status' => 'completed']);
                         try {
@@ -213,21 +248,22 @@ class OrderResource extends Resource
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
                     ->requiresConfirmation()
-                    ->visible(fn (Order $record) => !in_array($record->status, ['completed', 'cancelled']))
+                    ->visible(fn (Order $record) => auth()->user()?->role !== 'owner' && !in_array($record->status, ['completed', 'cancelled']))
                     ->action(fn (Order $record) => $record->update(['status' => 'cancelled'])),
                 Action::make('lunas')
                     ->label('Tandai Lunas')
                     ->color('success')
                     ->icon('heroicon-o-banknotes')
                     ->requiresConfirmation()
-                    ->visible(fn (Order $record) => $record->status_payment !== 'paid')
+                    ->visible(fn (Order $record) => auth()->user()?->role !== 'owner' && $record->status_payment !== 'paid')
                     ->action(fn (Order $record) => $record->update(['status_payment' => 'paid'])),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])->visible(fn () => auth()->user()?->role !== 'owner'),
             ]);
     }
 

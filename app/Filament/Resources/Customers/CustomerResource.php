@@ -41,6 +41,42 @@ class CustomerResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama';
 
+    /**
+     * Owner tidak bisa menambah pelanggan.
+     */
+    public static function canCreate(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa mengedit pelanggan.
+     */
+    public static function canEdit($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa menghapus pelanggan.
+     */
+    public static function canDelete($record): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
+    /**
+     * Owner tidak bisa bulk delete.
+     */
+    public static function canDeleteAny(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role !== 'owner';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -84,13 +120,15 @@ class CustomerResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->role !== 'owner'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])->visible(fn () => auth()->user()?->role !== 'owner'),
             ]);
     }
 

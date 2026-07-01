@@ -34,11 +34,15 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return in_array($this->role, ['admin']);
+        return in_array($this->role, ['admin', 'owner']);
     }
 
     public function isAdmin() {
         return $this->role === 'admin';
+    }
+
+    public function isOwner() {
+        return $this->role === 'owner';
     }
 
     public function isPelanggan() {
@@ -47,5 +51,9 @@ class User extends Authenticatable implements FilamentUser
 
     public function customer() {
         return $this->hasOne(Customer::class);
+    }
+
+    public function activityLogs() {
+        return $this->hasMany(ActivityLog::class);
     }
 }

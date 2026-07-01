@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('bay-coffee-admin')
             ->path('baycoffee-admin')
-            ->brandName('Bay Coffee Admin')
+            ->brandName(fn () => auth()->check() && auth()->user()->role === 'owner' ? 'Bay Coffee Owner' : 'Bay Coffee Admin')
             ->login()
             ->colors([
                 // Warm brown from website's --color-surface-tint (#745853)
@@ -96,6 +96,8 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Manajemen Transaksi'),
                 NavigationGroup::make('Manajemen Stok'),
                 NavigationGroup::make('Manajemen Users'),
+                NavigationGroup::make('Manajemen Keuangan'),
+                NavigationGroup::make('Monitoring'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
