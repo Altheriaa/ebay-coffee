@@ -33,7 +33,7 @@
         <!-- Header -->
         <div class="mb-8">
           <p class="text-xs font-bold uppercase tracking-widest text-secondary mb-2">Buat akun baru</p>
-          <h1 class="text-2xl sm:text-4xl font-bold text-primary mb-2"">Daftar Sekarang</h1>
+          <h1 class="text-2xl sm:text-4xl font-bold text-primary mb-2">Daftar Sekarang</h1>
           <p class="text-xs text-on-surface-variant">Sudah punya akun?
             <a href="/login" class="font-semibold text-secondary hover:underline">Masuk di sini</a>
           </p>
